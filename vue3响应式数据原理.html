@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Document</title>
+</head>
+<body>
+  <!-- 
+    vue2的响应式:
+      对象: 通过defineProperty对对象的已有属性值的读取和修改进行劫持(监视/拦截)
+      数组: 通过重写数组更新数组一系列更新元素的方法来实现元素修改的劫持
+      存在的问题：
+        对象直接新添加的属性或删除已有属性, 界面不会自动更新
+        直接通过下标替换元素或更新length, 界面不会自动更新
+    
+    vue3的响应式:
+      通过Proxy(代理): 拦截对data任意属性的任意(13种)操作, 包括属性值的读写, 属性的添加, 属性的删除等...
+      通过 Reflect(反射): 动态对被代理对象的相应属性进行特定的操作
+   -->
+  <script>
+    // 目标对象
+    let obj = {
+      name: 'yxs',
+      age: 18,
+      wife: {
+        name: 'fy',
+        age: 18
+      }
+    }
+    // 把目标对象变成代理对象
+    let proxyObj = new Proxy(obj, {
+      // 拦截读取属性值
+      get(target, prop) {
+        console.log('有人读取数据')
+        return Reflect.get(target, prop)
+      },
+      // 拦截设置属性值或添加新属性
+      set(target, prop, value) {
+        console.log('有人修改数据')
+        return Reflect.set(target, prop, value)
+      },
+      // 拦截删除属性
+      deleteProperty(target, prop) {
+        console.log('有人删除属性', prop)
+        return Reflect.deleteProperty(target, prop)
+      }
+    })
+  </script>
+</body>
+</html>
