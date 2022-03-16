@@ -30,6 +30,10 @@
       const box = document.getElementById('box')
       const box3 = document.getElementById('box3')
       const btn = document.getElementById('btn')
+      const btn1 = document.getElementById('btn1')
+      btn1.addEventListener('click', function() {
+        console.log(this)
+      })
       btn.onclick = function() {
         /*
         * clientWidth clientHeight
@@ -73,9 +77,63 @@
         * 	- 可以获取垂直滚动条滚动的距离
         */
 
-        //当满足scrollHeight - scrollTop === clientHeight,说明垂直滚动条滚动到底了
-        //当满足scrollWidth - scrollLeft === clientWidth,说明水平滚动条滚动到底
+        // 当满足scrollHeight - scrollTop === clientHeight,说明垂直滚动条滚动到底了
+        // 当满足scrollWidth - scrollLeft === clientWidth,说明水平滚动条滚动到底
+
+        // 可以将事件对象的cancelBubble设置为true，即可取消冒泡
+        // event.cancelBubble = true;
+
+        /*
+				 * addEventListener()
+				 * 	- 通过这个方法可以为元素绑定响应函数
+				 *  - 参数：
+				 * 		1.事件的字符串，不要on
+				 * 		2.回调函数，当事件触发时该函数会被调用
+				 * 		3.是否在捕获阶段触发事件，需要一个布尔值，一般都传false
+				 * 
+				 * 使用addEventListener()可以同时为一个元素的相同事件同时绑定多个响应函数，当事件被触发时，响应函数将会按照函数的绑定顺序执行
+				 * 这个方法不支持IE8及以下的浏览器
+				 */
+
+        /*
+				 * attachEvent()
+				 * 	- 在IE8中可以使用attachEvent()来绑定事件
+				 *  - 参数：
+				 * 		1.事件的字符串，要on
+				 * 		2.回调函数
+				 * 
+				 *  - 这个方法可以同时为一个事件绑定多个处理函数，不同的是它是后绑定先执行，执行顺序和addEventListener()相反
+				 */
       }
+
+      // 定义一个函数，用来为指定元素绑定响应函数
+			/*
+			 * addEventListener()中的this，是绑定事件的对象
+			 * attachEvent()中的this，是window
+			 *  需要统一两个方法this
+			 */
+			/*
+			 * 参数：
+			 * 	obj 要绑定事件的对象
+			 * 	eventStr 事件的字符串(不要on)
+			 *  callback 回调函数
+			 */
+			function bind(obj, eventStr, callback) {
+				if(obj.addEventListener) {
+					// 大部分浏览器兼容的方式
+					obj.addEventListener(eventStr, callback, false)
+				} else {
+					/*
+					 * this是由调用方式决定
+					 * callback.call(obj)
+					 */
+					// IE8及以下
+					obj.attachEvent('on' + eventStr, function() {
+						// 在匿名函数中调用回调函数
+						callback.call(obj)
+					})
+				}
+			}
     }
   </script>
 </head>
@@ -85,6 +143,7 @@
   </div>
   <br>
   <button id="btn">点我</button>
+  <button id="btn1">点我呀</button>
   <div id="box3">
     <div id="box4"></div>
   </div>
