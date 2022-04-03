@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Document</title>
+</head>
+<body>
+  <!-- 
+    vue2的响应式:
+      对象: 通过defineProperty对对象的已有属性值的读取和修改进行劫持(监视/拦截)
+      数组: 通过重写数组更新数组一系列更新元素的方法来实现元素修改的劫持
+      存在的问题：
+        对象直接新添加的属性或删除已有属性, 界面不会自动更新
+        直接通过下标替换元素或更新length, 界面不会自动更新
+    
+    vue3的响应式:
+      通过Proxy(代理): 拦截对data任意属性的任意(13种)操作, 包括属性值的读写, 属性的添加, 属性的删除等...
+      通过 Reflect(反射): 动态对被代理对象的相应属性进行特定的操作
+   -->
+  <script>
+  /**
+   * 
+   *Vue2和Vue3的相比较而言的相关的面试题
+   *  2020年9月发布的正式版
+   *  Vue3支持大多数的Vue2的特性
+   *  Vue中设计了一套强大的组合APi代替了Vue2中的option API ,复用性更强了
+   *  更好的支持TS
+   *  最主要: Vue3中使用了Proxy配合Reflect 代替了Vue2中Object.defineProperty()方法实现数据的响应式(数据代理)
+   *  重写了虚拟DOM,速度更快了
+   *  新的组件: Fragment(片段) / Teleport(瞬移) / Suspense(不确定)
+   *  设计了一个新的脚手架工具：vite
+   */
+    // vue2响应式原理
+    let person = {
+      name: 'yxs',
+      id: '',
+      phone: '',
+      wife: {
+        name: 'fy'
+      }
+    }
+    function definePropertyFun(obj, k, val) {
+      if (Object.prototype.toString.call(val) === '[object Object]') {
+        observer(val)
+        return
+      }
+      Object.defineProperty(obj, k, {
+        get() {
+          console.log('读取属性')
+          return val
+        },
+        set(v) {
+          console.log('修改属性')
+          val = v
+        }
+      })
+    }
+
+    function observer(obj) {
+      if (Object.prototype.toString.call(obj) !== '[object Object]') {
+        return
+      }
+      Object.keys(obj).forEach(k => {
+        definePropertyFun(obj, k, obj[k])
+      })
+    }
+
+    observer(person)
+    console.log(person.wife.name)
+
+
+    // vue3 响应式原理
+    // 目标对象
+    let obj = {
+      name: 'yxs',
+      age: 18,
+      wife: {
+        name: 'fy',
+        age: 18
+      }
+    }
+    // 把目标对象变成代理对象
+    let proxyObj = new Proxy(obj, {
+      // 拦截读取属性值
+      get(target, prop) {
+        console.log('有人读取数据')
+        return Reflect.get(target, prop)
+      },
+      // 拦截设置属性值或添加新属性
+      set(target, prop, value) {
+        console.log('有人修改数据')
+        return Reflect.set(target, prop, value)
+      },
+      // 拦截删除属性
+      deleteProperty(target, prop) {
+        console.log('有人删除属性', prop)
+        return Reflect.deleteProperty(target, prop)
+      }
+    })
+  </script>
+</body>
+</html>
